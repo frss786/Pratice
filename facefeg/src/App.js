@@ -39,7 +39,7 @@ class App extends Component {
     super();
     this.state = {
       input:'',
-      url: 'https://samples.clarifai.com/face-det.jpg',
+      url: '',
       box: {}
     }
   }
@@ -50,16 +50,20 @@ class App extends Component {
     const image = document.getElementById('inputimage');
     const width = Number(image.width);
     const height = Number(image.height);
-    console.log(width, height);
-    return {
-      left: face.left_col * width,
-      topRow: face.top_row * height,
-      right: width - (face.right_col *width),
-      bottomRow: height - (face.bottom_row * height),
-    }
+    const faceArray = dataA.outputs[0].data.regions.map((region) =>{
+      var faceBox = region.region_info.bounding_box;
+      return {
+        left: faceBox.left_col * width,
+        topRow: faceBox.top_row * height,
+        right: width - (faceBox.right_col *width),
+        bottomRow: height - (faceBox.bottom_row * height),
+      }
+    });
+    return faceArray;
   }
 
   displayFaceBox = (box) => {
+    console.log("box",box)
     this.setState({box: box});
   }
 
@@ -71,7 +75,7 @@ class App extends Component {
     this.setState({url:this.state.input});
     app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
     .then(response => {
-      this.calculateFaceLocation(response);
+      this.displayFaceBox(this.calculateFaceLocation(response));
     }).catch(err => console.log(err));
   }
 
@@ -91,7 +95,7 @@ class App extends Component {
         <Logo />
         <Rank />
         <ImageLink onInputChange={this.onInputChange} onButtonSubmit={this.onSubmit}/>
-        <FaceReg url={this.state.url}/>
+        <FaceReg box={this.state.box} url={this.state.url}/>
       </div>
     );
   }
