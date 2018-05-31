@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import Nav from './Component/nav/Nav.js'
 import Logo from './Component/Logo/Logo.js'
 import ImageLink from './Component/ImageLink/ImageLink.js'
+import SignIn from './Component/SignIn/SignIn.js'
 import FaceReg from './Component/FaceReg/FaceReg.js'
 import Rank from './Component/Rank/Rank.js'
 import Particles from 'react-particles-js'
@@ -20,7 +21,7 @@ const particlesOp = {
       value: 30,
       density:{
         enable: true,
-        value_area: 100
+        value_area: 150
       }
     },
     // line_linked: {
@@ -40,7 +41,8 @@ class App extends Component {
     this.state = {
       input:'',
       url: '',
-      box: {}
+      box: {}, 
+      route: 'signin'
     }
   }
 
@@ -91,11 +93,18 @@ class App extends Component {
               className='particles'
               params={particlesOp}
             />
-        <Nav />
-        <Logo />
-        <Rank />
-        <ImageLink onInputChange={this.onInputChange} onButtonSubmit={this.onSubmit}/>
-        <FaceReg box={this.state.box} url={this.state.url}/>
+        { this.state.route === 'signin' ?
+            <div>
+              <SignIn />
+            </div>
+            : <div>
+                <Nav />
+                <Logo />
+                <Rank />
+                <ImageLink onInputChange={this.onInputChange} onButtonSubmit={this.onSubmit}/>
+                <FaceReg box={this.state.box} url={this.state.url}/>
+              </div>    
+        }
       </div>
     );
   }
