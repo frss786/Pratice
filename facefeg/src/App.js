@@ -7,6 +7,7 @@ import SignIn from './Component/SignIn/SignIn.js'
 import FaceReg from './Component/FaceReg/FaceReg.js'
 import Rank from './Component/Rank/Rank.js'
 import Particles from 'react-particles-js'
+import Register from './Component/Register/Register.js'
 import './App.css';
 import Clarifai from 'clarifai';
 
@@ -41,8 +42,9 @@ class App extends Component {
     this.state = {
       input:'',
       url: '',
-      box: {}, 
-      route: 'signin'
+      box: {},
+      route: 'signin',
+      isSignedIn: false
     }
   }
 
@@ -73,6 +75,15 @@ class App extends Component {
     this.setState({input: event.target.value});
   }
 
+  onRouteChange = (route) => {
+    if(route === 'signin'){
+      this.setState({isSignedIn: false});
+    } else if(route === 'home'){
+      this.setState({isSignedIn: true});
+    }
+    this.setState({route:route})
+  }
+
   onSubmit = () => {
     this.setState({url:this.state.input});
     app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
@@ -81,29 +92,30 @@ class App extends Component {
     }).catch(err => console.log(err));
   }
 
-  //Add title to the page.
-  componentDidMount(){
-    document.title = "FaceReg"
-  }
-
   render() {
     return (
       <div className="App">
-        <Particles 
+        <Particles
               className='particles'
               params={particlesOp}
             />
-        { this.state.route === 'signin' ?
-            <div>
-              <SignIn />
-            </div>
-            : <div>
-                <Nav />
-                <Logo />
-                <Rank />
-                <ImageLink onInputChange={this.onInputChange} onButtonSubmit={this.onSubmit}/>
-                <FaceReg box={this.state.box} url={this.state.url}/>
-              </div>    
+        <Nav onRouteChange={this.onRouteChange} isSignedIn={this.state.isSignedIn}/>
+        { this.state.route === 'home' ?
+          <div>
+            <Logo />
+            <Rank />
+            <ImageLink onInputChange={this.onInputChange} onButtonSubmit={this.onSubmit}/>
+            <FaceReg box={this.state.box} url={this.state.url}/>
+          </div>
+          : (this.state.route === 'signin' ?
+              <div>
+                <SignIn onRouteChange={this.onRouteChange}/>
+              </div>
+              :
+              <div>
+                <Register onRouteChange={this.onRouteChange}/>
+              </div>
+            )
         }
       </div>
     );
