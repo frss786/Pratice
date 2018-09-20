@@ -29,9 +29,12 @@ class SignIn extends React.Component  {
 				password: this.state.signInPassword
 			})
 		}).then(response => response.json())
-			.then(data => {
-				if(data === 'success'){
+			.then(user => {
+				if(user.id){
+					this.props.loadUser(user);
 					this.props.onRouteChange('home');
+				} else{
+					console.log(user)
 				}
 			});
 	}
@@ -54,7 +57,7 @@ class SignIn extends React.Component  {
 						<label className="pa0 ma0 lh-copy f6 pointer"><input type="checkbox"/> Remember me</label>
 			    </fieldset>
 			    <div className="Signin">
-			      <input  className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="submit" value="Sign in" />
+			      <input  onClick={this.onSubmitSignIn} className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="submit" value="Sign in" />
 			    </div>
 			    <div className="lh-copy mt3">
 			      <p onClick={() => {this.props.onRouteChange('Register')}}href="#0" className="f6 link dim black db pointer">Register</p>

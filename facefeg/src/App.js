@@ -44,8 +44,27 @@ class App extends Component {
       url: '',
       box: {},
       route: 'signin',
-      isSignedIn: false
+      isSignedIn: false,
+      user:{
+        id:'',
+        name:'',
+        email:'',
+        entries:'',
+        joined:'',
+      }
     }
+  }
+
+  loadUser = (user)=>{
+    this.setState({
+      user:{
+        id:user.id,
+        name:user.name,
+        email:user.email,
+        entries:user.entries,
+        joined:user.joined,
+      }
+    })
   }
 
   calculateFaceLocation = (dataA) => {
@@ -88,6 +107,18 @@ class App extends Component {
     this.setState({url:this.state.input});
     app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
     .then(response => {
+      if(response){
+        fetch('http://localhost:3000/image',{
+          method:'put',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            id: this.state.user.id
+          })
+        }).then(response => response.json())
+          .then(rank => {
+              this.setState(Object.assign(this.state.user, {entries: rank}));
+          });
+      }
       this.displayFaceBox(this.calculateFaceLocation(response));
     }).catch(err => console.log(err));
   }
@@ -103,17 +134,17 @@ class App extends Component {
         { this.state.route === 'home' ?
           <div>
             <Logo />
-            <Rank />
+            <Rank rank={this.state.user.entries} name={this.state.user.name}/>
             <ImageLink onInputChange={this.onInputChange} onButtonSubmit={this.onSubmit}/>
             <FaceReg box={this.state.box} url={this.state.url}/>
           </div>
           : (this.state.route === 'signin' ?
               <div>
-                <SignIn onRouteChange={this.onRouteChange}/>
+                <SignIn onRouteChange={this.onRouteChange} loadUser={this.loadUser}/>
               </div>
               :
               <div>
-                <Register onRouteChange={this.onRouteChange}/>
+                <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser}/>
               </div>
             )
         }
